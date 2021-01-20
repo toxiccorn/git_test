@@ -4,7 +4,6 @@ import vars
 
 from docx import Document
 from docx.shared import Cm, Pt
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from Student import Student
 
 # Поиск и выбор файла
@@ -109,26 +108,30 @@ section.bottom_margin = Cm(2)
 section.left_margin = Cm(3)
 section.right_margin = Cm(1)
 
-doc_rsreu_head = document.add_paragraph()
-doc_rsreu_head.add_run("ФГБОУ ВО «Рязанский государственный радиотехнический университет им. В.Ф. Уткина»").bold = True
-paragraph_format = doc_rsreu_head.paragraph_format
-paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+# Определяем стиль по умолчанию
+# alignment = 1 - выравнивание по центру
+default_style = document.styles['Normal']
+default_font = default_style.font
+default_font.name = 'Times New Roman'
+default_font.size = Pt(14)
+default_font.bold = True
 
-doc_name = document.add_paragraph()
-doc_name.add_run('Экзаменационная ведомость').bold = True
-paragraph_format = doc_name.paragraph_format
-paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+doc_rsreu_head = document.add_paragraph("ФГБОУ ВО «Рязанский"
+                                        " государственный радиотехнический университет им. В.Ф. Уткина»")
+doc_rsreu_head.alignment = 1
+doc_rsreu_head.style = document.styles['Normal']
 
-doc_exam_name = document.add_paragraph()
-paragraph_format = doc_exam_name.paragraph_format
-paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-doc_exam_name.add_run(subject_name.title()).bold = True
+doc_name = document.add_paragraph('Экзаменационная ведомость')
+doc_name.alignment = 1
+doc_name.style = document.styles['Normal']
 
-doc_exam_date = document.add_paragraph()
-doc_exam_date.add_run(date_user_string).bold = True
-doc_exam_date.add_run('Дата: ').bold = True
-paragraph_format = doc_exam_date.paragraph_format
-paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+doc_exam_name = document.add_paragraph(subject_name.title())
+doc_exam_name.alignment = 1
+doc_exam_name.style = document.styles['Normal']
+
+doc_exam_date = document.add_paragraph("Дата: " + date_user_string)
+doc_exam_date.alignment = 1
+doc_exam_date.style = document.styles['Normal']
 
 table = document.add_table(rows=len(students), cols=3)
 document.save('demo.docx')
