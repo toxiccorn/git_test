@@ -30,8 +30,6 @@ doc_exam_name.alignment = 1
 doc_exam_name.style = document.styles['Normal']
 
 doc_exam_date = document.add_paragraph("Дата: " + "случайная дата")
-#doc_exam_date.add_run(date_user_string).bold = True
-#doc_exam_date.add_run('Дата: ').bold = True
 doc_exam_date.alignment = 1
 doc_exam_date.style = document.styles['Normal']
 
