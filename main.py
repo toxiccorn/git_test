@@ -4,6 +4,8 @@ import vars
 
 from docx import Document
 from docx.shared import Cm, Pt
+from docx.enum.style import WD_STYLE_TYPE
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT, WD_ROW_HEIGHT_RULE
 from Student import Student
 
 # Поиск и выбор файла
@@ -68,7 +70,7 @@ with open(temp_file, 'r', encoding=encode) as tfile:
     csvdata = csv.reader(tfile)
     header_row = next(csvdata)
 
-    # Cчитывает данные о необходимых студентах
+# Cчитывает данные о необходимых студентах
     for row in csvdata:
         if search_date_string in row[test_date_col]:
             current_student = Student(row[0] + ' ' + row[1], row[9])
@@ -102,36 +104,81 @@ os.remove(temp_file)
 
 # Создаем файл ведомости
 document = Document()
-section = document.sections[0]
-section.top_margin = Cm(2)
-section.bottom_margin = Cm(2)
-section.left_margin = Cm(3)
-section.right_margin = Cm(1)
+# Устанавливаем поля
+sections = document.sections
+for section in sections:
+    section.top_margin = Cm(2)
+    section.bottom_margin = Cm(2)
+    section.left_margin = Cm(3)
+    section.right_margin = Cm(1)
 
 # Определяем стиль по умолчанию
-# alignment = 1 - выравнивание по центру
-default_style = document.styles['Normal']
-default_font = default_style.font
-default_font.name = 'Times New Roman'
-default_font.size = Pt(14)
-default_font.bold = True
+object_style = document.styles
+paragraph_style = object_style.add_style("Paragraph style", WD_STYLE_TYPE.PARAGRAPH)
+paragraph_font = paragraph_style.font
+paragraph_font.size = Pt(12)
+paragraph_font.name = 'Times New Roman'
 
-doc_rsreu_head = document.add_paragraph("ФГБОУ ВО «Рязанский"
-                                        " государственный радиотехнический университет им. В.Ф. Уткина»")
+doc_rsreu_head = document.add_paragraph(style='Paragraph style')
 doc_rsreu_head.alignment = 1
-doc_rsreu_head.style = document.styles['Normal']
+doc_rsreu_head.add_run("ФГБОУ ВО «Рязанский государственный радиотехнический университет им. В.Ф. Уткина»").bold = True
 
-doc_name = document.add_paragraph('Экзаменационная ведомость')
+doc_name = document.add_paragraph(style='Paragraph style')
 doc_name.alignment = 1
-doc_name.style = document.styles['Normal']
+doc_name.add_run('Экзаменационная ведомость').bold = True
 
-doc_exam_name = document.add_paragraph(subject_name.title())
-doc_exam_name.alignment = 1
-doc_exam_name.style = document.styles['Normal']
-
-doc_exam_date = document.add_paragraph("Дата: " + date_user_string)
+doc_exam_date = document.add_paragraph(style='Paragraph style')
 doc_exam_date.alignment = 1
-doc_exam_date.style = document.styles['Normal']
+doc_exam_date.add_run("Дата: " + date_user_string).bold = True
 
-table = document.add_table(rows=len(students), cols=3)
+doc_exam_name = document.add_paragraph(style='Paragraph style')
+doc_exam_name.alignment = 1
+doc_exam_name.add_run(subject_name.title()).bold = True
+
+
+# Таблица
+table = document.add_table(cols=3, rows=1)
+table.style = "Table Grid"
+table.heigh_rule = WD_ROW_HEIGHT_RULE.EXACTLY
+table.alignment = WD_TABLE_ALIGNMENT.CENTER
+table.autofit = False
+
+heading_row = table.rows[0].cells
+heading_row[0].text = '№ п/п'
+heading_row[0].paragraphs[0].alignment = 1
+heading_row[1].text = 'ФИО'
+heading_row[1].paragraphs[0].alignment = 1
+heading_row[2].text = 'БАЛЛ'
+heading_row[2].paragraphs[0].alignment = 1
+
+for index, student in enumerate(students):
+    new_row = table.add_row()
+    number = new_row.cells[0].paragraphs[0]
+    number.style = "Paragraph style"
+    number.alignment = 1
+    number.add_run(str(index))
+
+    name = new_row.cells[1].paragraphs[0]
+    name.style = "Paragraph style"
+    name.alignment = 0
+    name.add_run(student.full_name)
+
+    score = new_row.cells[2].paragraphs[0]
+    score.alignment = 1
+    score.style = "Paragraph style"
+    score.add_run(str(student.sum_secondary_score))
+
+for row in table.rows:
+    row.height = Cm(1.5)
+    for index, cell in enumerate(row.cells):
+        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+        if index != 1:
+            cell.width = Cm(2)
+        else:
+            cell.width = Cm(14)
+        paragraphs = cell.paragraphs
+        for paragraph in paragraphs:
+            for run in paragraph.runs:
+                run.bold = True
+
 document.save('demo.docx')
