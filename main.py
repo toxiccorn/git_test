@@ -17,7 +17,7 @@ for file in os.listdir():
 for index, file in enumerate(file_list):
     print(str(index) + ' ' + file)
 
-user_file_pick = int(input('выберите номер файла'))
+user_file_pick = int(input('выберите номер файла\n'))
 filename = file_list[user_file_pick]
 
 temp_file = 'temp_' + filename
@@ -26,7 +26,7 @@ encode = 'utf-8'
 # Ищем тест и его параметры
 for index, subject in enumerate(vars.subjects):
     print(str(index) + ' ' + subject['name'])
-subject_index = int(input('выберете предмет'))
+subject_index = int(input('выберете предмет\n'))
 subject = vars.subjects[subject_index]
 
 subject_name = subject['name']
@@ -41,7 +41,7 @@ b_end = subject['b_questions_end_col']
 test_date_col = subject['test_date_col']
 b_questions = len(subject['custom_b_table'].items()) - 1
 
-date_user_string = input('Введите дату экзамена в формате dd.mm.yyyy')
+date_user_string = input('Введите дату экзамена в формате dd.mm.yyyy\n')
 
 # Перевариваем дату для поиска по таблице
 date_splited_strings = date_user_string.split('.')
@@ -143,6 +143,7 @@ table.heigh_rule = WD_ROW_HEIGHT_RULE.EXACTLY
 table.alignment = WD_TABLE_ALIGNMENT.CENTER
 table.autofit = False
 
+# Заголовок
 heading_row = table.rows[0].cells
 heading_row[0].text = '№ п/п'
 heading_row[0].paragraphs[0].alignment = 1
@@ -151,12 +152,13 @@ heading_row[1].paragraphs[0].alignment = 1
 heading_row[2].text = 'БАЛЛ'
 heading_row[2].paragraphs[0].alignment = 1
 
+# Заполнение таблицы
 for index, student in enumerate(students):
     new_row = table.add_row()
     number = new_row.cells[0].paragraphs[0]
     number.style = "Paragraph style"
     number.alignment = 1
-    number.add_run(str(index))
+    number.add_run(str(index+1))
 
     name = new_row.cells[1].paragraphs[0]
     name.style = "Paragraph style"
@@ -168,6 +170,7 @@ for index, student in enumerate(students):
     score.style = "Paragraph style"
     score.add_run(str(student.sum_secondary_score))
 
+# Форматирование
 for row in table.rows:
     row.height = Cm(1.5)
     for index, cell in enumerate(row.cells):
@@ -181,4 +184,5 @@ for row in table.rows:
             for run in paragraph.runs:
                 run.bold = True
 
-document.save('demo.docx')
+output_file_name = subject_name.title() + '_' + date_user_string + '_Экзаменационная ведомость'
+document.save(output_file_name)
