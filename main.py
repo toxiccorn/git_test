@@ -26,6 +26,7 @@ encode = 'utf-8'
 # Ищем тест и его параметры
 for index, subject in enumerate(vars.subjects):
     print(str(index) + ' ' + subject['name'])
+
 subject_index = int(input('выберете предмет\n'))
 subject = vars.subjects[subject_index]
 
@@ -104,6 +105,7 @@ os.remove(temp_file)
 
 # Создаем файл ведомости
 document = Document()
+
 # Устанавливаем поля
 sections = document.sections
 for section in sections:
@@ -134,7 +136,6 @@ doc_exam_date.add_run("Дата: " + date_user_string).bold = True
 doc_exam_name = document.add_paragraph(style='Paragraph style')
 doc_exam_name.alignment = 1
 doc_exam_name.add_run(subject_name.title()).bold = True
-
 
 # Таблица
 table = document.add_table(cols=3, rows=1)
@@ -184,5 +185,5 @@ for row in table.rows:
             for run in paragraph.runs:
                 run.bold = True
 
-output_file_name = subject_name.title() + '_' + date_user_string + '_Экзаменационная ведомость'
+output_file_name = subject_name.title() + '_' + date_user_string + '_Экзаменационная ведомость.docx'
 document.save(output_file_name)
